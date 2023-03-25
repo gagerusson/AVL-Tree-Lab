@@ -1,5 +1,3 @@
-// YOU MAY NOT MODIFY THIS DOCUMENT
-
 #pragma once
 
 struct Node {
