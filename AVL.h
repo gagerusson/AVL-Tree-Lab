@@ -8,6 +8,7 @@ using namespace std;
 class AVL : public AVLInterface {
 private:
     Node* root;
+    int size_tree = 0;
 
     bool _contains(Node* node, int item) const {
         if (node == nullptr) {
@@ -27,7 +28,6 @@ private:
     bool _insert(Node*& node, int item){
         if (node == nullptr) {
             node = new Node(item);
-            node->height = max(getHeight(node->left), getHeight(node->right)) + 1;
             return true;
         }
         else if (item == node->data) {
@@ -90,7 +90,6 @@ private:
             return true;
         }
         else if (item < node->data) {
-            //return _remove(node->left, item);
             bool isRemoved = _remove(node->left, item);
             if (isRemoved) {
                 rebalance(node);
@@ -105,7 +104,6 @@ private:
                 node->height = max(getHeight(node->left), getHeight(node->right)) + 1;
             }
             return isRemoved;
-            //return _remove(node->right, item);
         }
     }
 
@@ -128,12 +126,7 @@ private:
         }
         if (tmp == root) {
             root = node;
-            root->height = max(getHeight(root->left), getHeight(root->right)) + 1;
         }
-//        Node* tmp = node->left;
-//        node->left = tmp->right;
-//        tmp->right = node;
-//        node = tmp;
     }
 
     void rotateLeft(Node*& node) {
@@ -141,24 +134,19 @@ private:
         node = node->right;
         tmp->right = node->left;
         node->left = tmp;
-        node->height = max(getHeight(node->left), getHeight(node->right)) + 1;
         tmp->height = max(getHeight(tmp->left), getHeight(tmp->right)) + 1;
+        node->height = max(getHeight(node->left), getHeight(node->right)) + 1;
         if (tmp->right != nullptr) {
             tmp->right->height = max(getHeight(tmp->right->left), getHeight(tmp->right->right)) + 1;
         }
         if (tmp == root) {
             root = node;
-            root->height = max(getHeight(root->left), getHeight(root->right)) + 1;
         }
-//        Node* tmp = node->right;
-//        node->right = tmp->left;
-//        tmp->left = node;
-//        node = tmp;
     }
 
     void rebalance(Node*& node) {
         int balance = getBalanceFactor(node);
-        if (balance == -2) {
+        if (balance < -1) {
             if (getBalanceFactor(node->left) <= 0) {
                 rotateRight(node);
             }
@@ -167,7 +155,7 @@ private:
                 rotateRight(node);
             }
         }
-        else if (balance == 2) {
+        else if (balance > 1) {
             if (getBalanceFactor(node->right) >= 0) {
                 rotateLeft(node);
             }
@@ -212,7 +200,8 @@ public:
 
     bool insert(int item) {
         if (_insert(root, item)) {
-            //root->height = max(getHeight(root->left), getHeight(root->right)) + 1;
+            root->height = max(getHeight(root->left), getHeight(root->right)) + 1;
+            size_tree++;
             return true;
         }
         return false;
@@ -227,7 +216,10 @@ public:
 
     bool remove(int item) {
         if (_remove(root, item)) {
-            //root->height = max(getHeight(root->left), getHeight(root->right)) + 1;
+            if (root != nullptr) {
+                root->height = max(getHeight(root->left), getHeight(root->right)) + 1;
+            }
+            size_tree--;
             return true;
         }
         return false;
@@ -235,13 +227,11 @@ public:
 
     void clear() {
         _clear(root);
+        size_tree = 0;
     }
 
     int size() const {
-        if (root == nullptr) {
-            return 0;
-        }
-        return root->height;
+        return size_tree;
     }
 
 };
